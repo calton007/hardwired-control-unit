@@ -1,0 +1,153 @@
+MODULE CTL_1
+
+TITLE 'hard-wired control unit'
+
+"INPUT
+	CLR PIN 3;	"CLR=CLR#
+	W1,W2,W3,W4 PIN 7,74,9,72;
+	T1,MF PIN 79,5;
+	IR4,IR5,IR6,IR7 PIN 70,13..15;
+	SWC,SWB,SWA,C PIN 16,26..28;
+
+"OUTPUT
+	MF1,SST0 NODE ISTYPE 'COM';
+	RUN,ST0 NODE ISTYPE 'REG'; 
+	LRW,CER,AR1_INC,CEL PIN 80..83 ISTYPE 'COM';	"CEL=CEL#
+	LDAR1,LDAR2,LDDR1,LDDR2 PIN 11,17,18,73 ISTYPE 'COM';
+	LDER,LDIR,LDPC,LDR4,M1 PIN 75..78,50 ISTYPE 'COM';
+	M2,M4,PC_ADD,S0,S2,SKIP,ALU_BUS,WRD PIN 29,31,33,35,37,39..41 ISTYPE 'COM';
+	TJ,SW_BUS,S1,RS_BUS,PC_INC,M3 PIN 68,69,59,60,58,56 ISTYPE 'COM';	"SW_BUS=SW_BUS#, RS_BUS=RS_BUS#
+	CLK = .C.;
+
+	"Macro Definition
+	PR2 MACRO{ST0 & !SWC & !SWB & !SWA };
+	KRD1 MACRO{!ST0 & !SWC & !SWB & SWA };
+	KRD2 MACRO{ST0 & !SWC & !SWB & SWA };
+	KWE1 MACRO{!ST0 & !SWC & SWB & !SWA };
+	KWE2 MACRO{ST0 & !SWC & SWB & !SWA };
+	KLD1 MACRO{!ST0 & !SWC & SWB & SWA };
+	KLD2 MACRO{ST0 & !SWC & SWB & SWA };
+	KRR1 MACRO{!ST0 & SWC & !SWB & !SWA };
+	KRR2 MACRO{ST0 & SWC & !SWB & !SWA };
+	PR1 MACRO{!ST0 & !SWC & !SWB & !SWA };
+	ADD MACRO{PR2 & !IR7 & !IR6 & !IR5 & !IR4 };
+	SUB MACRO{PR2 & !IR7 & !IR6 & !IR5 & IR4 };
+	MUL MACRO{PR2 & !IR7 & !IR6 & IR5 & !IR4 };
+	AND MACRO{PR2 & !IR7 & !IR6 & IR5 & IR4 };
+	LDA MACRO{PR2 & !IR7 & IR6 & !IR5 & IR4 };
+	STA MACRO{PR2 & !IR7 & IR6 & !IR5 & !IR4 };
+	JMP MACRO{PR2 & IR7 & !IR6 & !IR5 & !IR4 };
+	JC MACRO{PR2 & IR7 & !IR6 & !IR5 & IR4 };
+	STP MACRO{PR2 & !IR7 & IR6 & IR5 & !IR4 };
+
+EQUATIONS
+	MF1 = !CLR & MF # T1;
+	RUN := CLR & !ST0 # CLR & RUN;
+	RUN.CLK = MF1; 
+	SST0 = !ST0 & RUN & W4;
+	ST0 := CLR & SST0 # CLR & ST0;
+	ST0.CLK = MF1;
+
+	LDIR = KRR2 & W2 
+		# KLD2 & W2 
+		# PR2 & W1;
+	SKIP = !ST0 & W1 
+		# KRR2 & W2 
+		# KWE2 & W1 
+		# KRD2 & W1 
+		# STA & W2 
+		# JMP & W2 
+		# JC & W2 
+		# STP & W2;
+	ALU_BUS = ADD & W3 
+		# SUB & W3 
+		# MUL & W3 
+		# AND & W3 
+		# STA & W4;
+	AR1_INC = KWE2 & W4 
+		# KRD2 & W4;
+	CEL = !(KRR2 & W1 
+		# KLD2 & W1 
+		# KWE2 & W1 
+		# KRD2 & W1 
+		# STA & W4  
+		# LDA & W3);
+	CER = LDIR;
+	LDIR = CER;
+	LDAR1 = KRD1 & W4 
+		# KWE1 & W4 
+		# KLD1 & W4 
+		# KRR1 & W4 
+		# STA & W2 
+		# LDA & W2 
+		# PR2 & W1;
+	LDAR2 = LDAR1;
+	LDDR2 = ADD & W2 
+		# SUB & W2 
+		# MUL & W2 
+		# AND & W2 
+		# STA & W2;
+	LDDR1 = LDDR2;
+	LDER = KLD2 & W3 
+		# ADD & W3 
+		# SUB & W3 
+		# MUL & W3 
+		# AND & W3 
+		# LDA & W3;
+	LDPC = PR1 & W4 
+		# JMP & W4 
+		# JC & W4 & C;
+	LDR4 = LDPC;
+	LRW = KRD2 & W1 
+		# LDA & W3;
+	M1 = !(ADD & W2 
+		# SUB & W2 
+		# MUL & W2 
+		# AND & W2);
+	M2 = !(ADD & W2 
+		# SUB & W2 
+		# MUL & W2 
+		# AND & W2 
+		# STA & W2);
+	M3 = KLD1 & W4 
+		# KRR1 & W4; 
+	M4 = PR1 & W4 
+		# JMP & W4;
+	PC_INC = PR2 & W1;
+	PC_ADD = JC & W4 & C;
+	RS_BUS = !(STA & W2 
+		# LDA & W2 
+		# KRR2 & W4 
+		# JMP & W4);
+	S0 = SUB # STA;
+	S1 = ADD # SUB;
+	S2 = MUL;
+	SW_BUS = !(KRD1 & W4 
+		# KWE1 & W4 
+		# KLD1 & W4 
+		# KRR1 & W4  
+		# PR1 & W4 
+		# KRR2 & W1 
+		# KLD2 & W1 
+		# KWE2 & W1 
+		# KLD2 & W3);
+	TJ = KWE1 & W4 
+		# KLD1 & W4 
+		# KRR1 & W4 
+		# KRR2 & W4 
+		# KLD2 & W4 
+		# KWE2 & W4 
+		# STP & W4 
+		# KLD2 & W2 
+		# KRD2 & W1;
+	WRD = KLD2 & W4 
+		# LDA & W4 
+		# AND & W4 
+		# SUB & W4 
+		# MUL & W4 
+		# AND & W4;
+	
+END
+
+
+
