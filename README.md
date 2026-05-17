@@ -1,4 +1,4 @@
-# Computer Organization
+# hardwired-control-unit
 
 本项目用于计算机组成原理实验，内容是一个硬布线控制器的 ABEL 源码。
 
