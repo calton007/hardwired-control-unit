@@ -1,0 +1,40 @@
+# OS and editor files
+.DS_Store
+Thumbs.db
+desktop.ini
+*.swp
+*.swo
+*~
+
+# IDE metadata
+.idea/
+.vscode/
+
+# ABEL / PLD tool temporary files
+*.tmp
+*.bak
+*.backup
+*.log
+*.err
+*.out
+
+# Generated fitter / programmer reports
+*.fit
+*.map
+*.rpt
+*.rep
+*.pin
+*.eqn
+*.tt*
+*.tim
+*.sim
+
+# Generated programming files
+*.jed
+*.jedec
+*.svf
+*.xsvf
+
+# Keep source files and reviewable list files under version control.
+!*.abl
+!*.lst
