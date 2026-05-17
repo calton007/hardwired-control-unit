@@ -73,7 +73,6 @@ EQUATIONS
 		# STA & W4  
 		# LDA & W3);
 	CER = LDIR;
-	LDIR = CER;
 	LDAR1 = KRD1 & W4 
 		# KWE1 & W4 
 		# KLD1 & W4 
@@ -142,10 +141,10 @@ EQUATIONS
 		# KRD2 & W1;
 	WRD = KLD2 & W4 
 		# LDA & W4 
+		# ADD & W4 
 		# AND & W4 
 		# SUB & W4 
-		# MUL & W4 
-		# AND & W4;
+		# MUL & W4;
 	
 END
 
